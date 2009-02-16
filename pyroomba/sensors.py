@@ -31,10 +31,10 @@ BATTERY_CAPACITY = (26, 'H', 'battery_capacity')
 
 WALL_SIGNAL = (27, 'H', 'wall_signal')
 
-CLIFF_LEFT_SIGNAL = (28, 'H', 'cliff_left_signal')
-CLIFF_FRONT_LEFT_SIGNAL = (29, 'H', 'cliff_front_left_signal')
-CLIFF_FRONT_RIGHT_SIGNAL = (30, 'H', 'cliff_front_right_signal')
-CLIFF_RIGHT_SIGNAL = (31, 'H', 'cliff_right_signal')
+CLIFF_LEFT = (28, 'H', 'cliff_left_signal')
+CLIFF_FRONT_LEFT = (29, 'H', 'cliff_front_left_signal')
+CLIFF_FRONT_RIGHT = (30, 'H', 'cliff_front_right_signal')
+CLIFF_RIGHT = (31, 'H', 'cliff_right_signal')
 
 CHARGING_SOURCES_AVAILABLE = (34, 'B', 'charging_sources_available')
 
@@ -67,3 +67,57 @@ SIDE_BRUSH_MOTOR_CURRENT = (57, 'h', 'side_brush_motor_current')
 
 STASIS = (58, 'B', 'stasis')
 
+
+SENSORS = [
+   BUMP_WHEEL_DROPS,
+    WALL,
+    CLIFF_LEFT,
+    CLIFF_FRONT_LEFT,
+    CLIFF_FRONT_RIGHT,
+    CLIFF_RIGHT,
+    VIRTUAL_WALL,
+    WHEEL_OVERCURRENT,
+    DIRT_DETECT,
+    IR_CHARACTER_OMNI,
+    IR_CHARACTER_LEFT,
+    IR_CHARACTER_RIGHT,
+    BUTTONS,
+    DISTANCE,
+    ANGLE,
+    CHARGING_STATE,
+    VOLTAGE,
+    CURRENT,
+    TEMPERATURE,
+    BATTERY_CHARGE,
+    BATTERY_CAPACITY,
+    WALL_SIGNAL,
+    CLIFF_LEFT,
+    CLIFF_FRONT_LEFT,
+    CLIFF_FRONT_RIGHT,
+    CLIFF_RIGHT,
+    CHARGING_SOURCES_AVAILABLE,
+    OI_MODE,
+    SONG_NUMBER,
+    SONG_PLAYING,
+    STREAM_PACKETS,
+    REQUESTED_VELOCITY,
+    REQUESTED_RADIUS,
+    REQUESTED_RIGHT_VELOCITY,
+    REQUESTED_LEFT_VELOCITY,
+    RIGHT_ENCODER,
+    LEFT_ENCODER,
+    LIGHT_BUMPER,
+    LIGHT_BUMP_LEFT,
+    LIGHT_BUMP_FRONT_LEFT,
+    LIGHT_BUMP_CENTER_LEFT,
+    LIGHT_BUMP_CENTER_RIGHT,
+    LIGHT_BUMP_FRONT_RIGHT,
+    LEFT_MOTOR_CURRENT,
+    RIGHT_MOTOR_CURRENT,
+    MAIN_BRUSH_MOTOR_CURRENT,
+    SIDE_BRUSH_MOTOR_CURRENT,
+    STASIS
+]
+
+SENSOR_ID_MAP = dict([ (sensor[0], sensor) for sensor in SENSORS ])
+SENSOR_NAME_MAP = dict([ (sensor[2], sensor) for sensor in SENSORS])
