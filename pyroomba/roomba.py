@@ -90,7 +90,24 @@ class Roomba(object):
 
 
 class RoombaDynamics(object):
-    """A class that models the dynamics of the Roomba's motion using direct encoder values"""
+    """Model of the dynamics of the Roomba's motion using direct encoder values.
+    This treats the Roomba as a rigid body with its origin at the center of the 
+    wheelbase. 
+
+    The encoder values along with the elapsed time since the last update
+    and the requested direction of motion are used to calculate velocity vectors
+    for each of the Roomba's wheels. These vectors allow us to find an imaginary
+    pivot about which the robot is rotating. Using this pivot we can calculate the
+    angular velocity of the robot from the velocity of either wheel (assuming both
+    are moving). Having done that we calculate the change in angle over the
+    elapsed time. We then rotate the Roomba's origin the calculated angle about
+    the pivot and establish this as the robot's new position.
+    
+    For details on why this works consult an introductory dynamics textbook. The
+    author would like to point out that his understanding of dynamics is
+    extremely limited, and he is willing to assert that the code in this class is
+    probably not entirely correct. Patches from those with a better understanding
+    of the problem at hand are, of course, welcome"""
     def __init__(self):
         self.prior_values = (0, 0)
         self.radius = 115.490625
