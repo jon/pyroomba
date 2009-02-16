@@ -6,36 +6,6 @@ from struct import calcsize
 from time import sleep
 from math import *
 
-
-# Sensor definitions
-BUMP_WHEEL_DROPS = (7, 'B', 'bump_wheel_drops')
-WALL = (8, 'B', 'wall')
-
-CLIFF_LEFT = (9, 'B', 'cliff_left')
-CLIFF_FRONT_LEFT = (10, 'B', 'cliff_front_left')
-CLIFF_FRONT_RIGHT = (11, 'B', 'cliff_front_right')
-CLIFF_RIGHT = (12, 'B', 'cliff_right')
-
-VIRTUAL_WALL = (13, 'B', 'virtual_wall')
-
-WHEEL_OVERCURRENT = (14, 'B', 'wheel_overcurrent')
-
-DIRT_DETECT = (15, 'B', 'dirt_detect')
-
-IR_CHARACTER_OMNI = (17, 'B', 'ir_character_omni')
-IR_CHARACTER_LEFT = (52, 'B', 'ir_character_left')
-IR_CHARACTER_RIGHT = (53, 'B', 'ir_character_left')
-
-BUTTONS = (18, 'B', 'buttons')
-
-
-RIGHT_ENCODER = (43, 'H', 'right_encoder')
-LEFT_ENCODER = (44, 'H', 'left_encoder')
-
-DISTANCE = (19, 'h', 'distance')
-ANGLE = (20, 'h', 'angle')
-CHARGING_STATE = (21, 'B', 'charging_state')
-
 def sign(x):
     """Returns the sign of x, either 1 or -1"""
     return int(x / abs(x))
