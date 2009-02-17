@@ -234,7 +234,7 @@ class Roomba(object):
             magic = ord(self.port.read())
         length = ord(self.port.read()) # Bytes left to read
         packet = self.port.read(length)
-        if (sum(unpack('B' * length, packet)) & 0xff) <> 0:
+        if (sum(unpack('B' * length, packet), length) & 0xff) <> 0:
             # Bad checksum. Ditch everything in the input buffer
             self.port.flushInput()
             raise 'Bad checksum while attempting to read sample' # Should maybe add autoretry option?
