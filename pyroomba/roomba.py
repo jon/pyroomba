@@ -6,6 +6,8 @@ from struct import calcsize
 from time import sleep
 from math import *
 
+import sensors
+
 def sign(x):
     """Returns the sign of x, either 1 or -1"""
     return int(x / abs(x))
@@ -208,7 +210,44 @@ class Roomba(object):
         
         response_format = '>' + ''.join(formats)
         response = self.port.read(calcsize(response_format))
-        return unpack(response_format, response)
+        values = unpack(response_format, response)
+        return dict(zip(names, values))
+    
+    def stream_samples(self, *sensors):
+        """Starts streaming sensor data from the Roomba at a rate of one
+        reading every 15ms (the Roomba's internal update rate). After this
+        method has executed you should call poll() at least once every 15ms
+        to access the returned sensor data. To halt the stream call 
+        stream_pause(). To result the stream with the same packet list call
+        stream_resume()."""
+        packet_list = [ packet for packet, format, name in sensors ]
+        count = len(packet_list)
+        format = 'BB' + ('B' * count)
+        self.send(format, 148, count, *packet_list)
+    
+    def poll(self):
+        """Reads a single sample from the current sample stream."""
+        # Samples always start with a 19 (decimal) followed by a byte indicating the length of the message
+        magic = ord(self.port.read())
+        while magic <> 19:
+            # We're out of sync. Read until we get our magic (which might occur mid-packet, so we may not resync)
+            magic = ord(self.port.read())
+        length = ord(self.port.read()) # Bytes left to read
+        packet = self.port.read(length)
+        if (sum(unpack('B' * length, packet)) & 0xff) <> 0:
+            # Bad checksum. Ditch everything in the input buffer
+            self.port.flushInput()
+            raise 'Bad checksum while attempting to read sample' # Should maybe add autoretry option?
+        packet = packet[0:-1] # Strip off checksum
+        readings = {}
+        while len(packet) <> 0:
+            sensor_id = ord(packet[0])
+            id, format, name = sensors.SENSOR_MAP[sensor_id]
+            size = calcsize(format)
+            value = unpack(format, packet[1:1+size])
+            readings[name] = value
+            packet = packet[1+size:]
+        return readings
         
     # Cleaup and shut down
     def close(self):
