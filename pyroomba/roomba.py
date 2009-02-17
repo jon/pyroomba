@@ -15,6 +15,7 @@ class Roomba(object):
     def __init__(self, port, baud = 115200):
         self.port = Serial(port, baud, timeout = None)
     
+    # Action commands (i.e., commands that make the Roomba do things)
     def send(self, format, *args):
         """Send a command to the robot. Basically a wrapper around self.port.write and struct.pack"""
         self.port.write(pack(format, *args))
@@ -61,6 +62,19 @@ class Roomba(object):
         """Seek self-charging drive-on dock"""
         self.cmd(143)
     
+    def schedule(self):
+        """Not yet implemented"""
+        pass
+        
+    def set_clock(self, day, hour, minute):
+        """Sets the Roomba's clock (for scheduling models). Note that hours
+        are represented in 24-hour time, 0-23."""
+        self.send('BBBB', 168, day, hour, minute)
+    
+    def off(self):
+        """Powers the Roomba down, placing it back in Passive mode."""
+        self.cmd(133)
+
     def drive(self, speed, radius):
         """Instructs the Robot to begin driving with a certain speed, 
         specified in mm/sec, and turning radius, specified in mm. This method
@@ -77,6 +91,54 @@ class Roomba(object):
         as specified in drive() likely holds for this method as well."""
         self.send('>Bhh', 145, right, left)
     
+    def drive_pwm(self, right, left):
+        """Controls the Roomba's motors in PWM (pulse-width modulation) mode. 
+        This effectively specifies the pulse-width directly to the motor
+        controller, with values ranging from -255 to 255. Positive widths
+        specify forward motion; negative widths specify backward motion.
+        
+        Pulse-width modulation is a method of power control in which motors
+        (or any current sink, but in our case motors) are pulsed alternately
+        to full on and full off repeatedly. Control can be thought of as
+        occuring in fixed time intervals (i.e., the period of the control
+        signal). The duty cycle (pulse-width) specifies for what fraction of
+        each of these periods the motor will be on. So for the Roomba a
+        pulse-width of 1 means the motor is fully powered 1/255th of the
+        time."""
+        if abs(right) > 255:
+            right = 255 * sign(right)
+        if abs(left) > 255:
+            left = 255 * sign(left)
+        self.send('>Bhh', 146, right, left)
+    
+    def motors(self, main = False, side = False, vacuum = False, reverse_main = False, side_clockwise = False):
+        """Turns the Roomba's cleaning motors (i.e., brushes and vacuum) on or
+        off at full speed. A value of True indicates that the motor should be
+        turned on. The value of reverse_main determines the direction of
+        the main brush. The value of side_clockwise determines the rotation
+        direction of the side brush."""
+        state = 0
+        state |= side and 1 or 0
+        state |= vacuum and 2 or 0
+        state |= main and 4 or 0
+        state |= side_clockwise and 8 or 0
+        state |= reverse_main and 16 or 0
+        self.send('BB', 138, state)
+    
+    def motors_pwm(self, main = 0, side = 0, vacuum = 0):
+        """Controls the Roomba's cleaning motors in PWM mode. See the
+        documentation for drive_pwm for a description of PWM. Ranges for the
+        main and side motors are -127 to 127; range for the vacuum is 0 to 127"""
+        if abs(main) > 127:
+            main = 127 * sign(main)
+        if abs(side) > 127)
+            side = 127 * sign(side)
+        if vacuum < 0:
+            vacuum = 0
+        if vacuum > 127:
+            vacuum = 127
+        self.send('BbbB', 144, main, side, vacuum)
+    
     def leds(self, color = 0, intensity = 0, check_robot = False, dock = False, spot = False, debris = False):
         """Sets the status of the Roomba's LEDs. Color and intensity must be
         in the range (0-255). Color ranges from solid green to solid red.
@@ -89,7 +151,52 @@ class Roomba(object):
         bits |= check_robot and 8 or 0
         self.send('BBBB', 139, bits, color, intensity)
     
-    def sample(self, *sensors):
+    def scheduling_leds(self):
+        """Not yet implemented"""
+        pass
+    
+    def display_raw(self):
+        """Not yet implemented"""
+        pass
+    
+    def display_ascii(self, text):
+        """Displays up to 4 ASCII characters using the 7-segment displays on
+        scheduling Roombas. Only a limited subset of ASCII is supported. See
+        the Roomba OI specification for details, but you can safely use all
+        letters, numbers, and most punctuation."""
+        text = text[0:4].encode('ascii').upper()
+        padding = 4 - len(text)
+        self.send('B4s', 164, text + ' ' * padding) # struct.pack() will pad for us, but we want space padding, not NUL padding
+    
+    def buttons(self, clean = False, spot = False, dock = False, minute = False, hour = False, day = False, schedule = False, clock = False):
+        """Simulates pressing the Roombas buttons for at most 1/6th of a
+        second. Pass True to push the button, False to release it (or not
+        push it)"""
+        bits = 0
+        bits |= clean and 1 or 0
+        bits |= spot and 2 or 0
+        bits |= dock and 4 or 0
+        bits |= minute and 8 or 0
+        bits |= hour and 0x10 or 0
+        bits |= day and 0x20 or 0
+        bits |= schedule and 0x40 or 0
+        bits |= clock and 0x80 or 0
+        self.send('BB', 165, bits)
+    
+    def define_song(self):
+        """Not yet implemented"""
+        pass
+    
+    def play_song(self):
+        """Not yet implemented"""
+        pass
+    
+    # Data commands (i.e., getting information out of the Roomba)
+    def sensors(self, sensor):
+        """Poll a single sensor"""
+        self.query_list(sensor)
+    
+    def query_list(self, *sensors):
         """Takes a blocking sample of a collection of Roomba's sensors,
         specified using the constants defined in this module"""
         packet_list = [ packet for packet, format, name in sensors ]
@@ -103,8 +210,8 @@ class Roomba(object):
         response = self.port.read(calcsize(response_format))
         return unpack(response_format, response)
         
+    # Cleaup and shut down
     def close(self):
         """Closes the serial port used to control the Roomba"""
         self.port.close()
-
 
