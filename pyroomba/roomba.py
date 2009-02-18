@@ -225,6 +225,15 @@ class Roomba(object):
         format = 'BB' + ('B' * count)
         self.send(format, 148, count, *packet_list)
     
+    def pause_stream(self):
+        """Pauses the sample stream (if any) coming from the Roomba"""
+        self.send('BB', 150, 0)
+    
+    def resume_stream(self):
+        """Resumes the sample stream with the previously requested set of
+        sensors"""
+        self.send('BB', 150, 1)
+    
     def poll(self):
         """Reads a single sample from the current sample stream."""
         # Samples always start with a 19 (decimal) followed by a byte indicating the length of the message
