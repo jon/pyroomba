@@ -133,7 +133,7 @@ class Roomba(object):
         main and side motors are -127 to 127; range for the vacuum is 0 to 127"""
         if abs(main) > 127:
             main = 127 * sign(main)
-        if abs(side) > 127)
+        if abs(side) > 127:
             side = 127 * sign(side)
         if vacuum < 0:
             vacuum = 0
