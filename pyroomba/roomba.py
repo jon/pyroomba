@@ -234,6 +234,9 @@ class Roomba(object):
     def pause_stream(self):
         """Pauses the sample stream (if any) coming from the Roomba"""
         self.send('BB', 150, 0)
+        sleep(0.03)
+        self.port.flushInput()
+        
     
     def resume_stream(self):
         """Resumes the sample stream with the previously requested set of
