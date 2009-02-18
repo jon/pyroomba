@@ -1,5 +1,8 @@
 
-from serial import Serial
+try:
+    from serial import Serial
+except ImportError:
+    print "Unable to import serial library -- unless you are running tests this will not work"
 from struct import pack
 from struct import unpack
 from struct import calcsize
@@ -19,9 +22,15 @@ def sign(x):
     return 0
 
 class Roomba(object):
-    """A Roomba robot instance"""
-    def __init__(self, port, baud = 115200):
-        self.port = Serial(port, baud, timeout = None)
+    """A Roomba robot instance."""
+    def __init__(self, port, baud = 115200, serial_port = None):
+        if not serial_port:
+            self.port = Serial(port, baud, timeout = None)
+        else:
+            self.port = serial_port # Mostly useful for testing, but also if
+            # you have a pyserial compliant class for communicating over some
+            # other medium. Mostly it needs to support blocking reads and
+            # writes, as well as .flushInput()
     
     # Action commands (i.e., commands that make the Roomba do things)
     def send(self, format, *args):
