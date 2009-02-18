@@ -8,6 +8,8 @@ from math import *
 
 import sensors
 
+__all__ = [ 'Roomba' ]
+
 def sign(x):
     """Returns the sign of x, either 1 or -1"""
     return int(x / abs(x))

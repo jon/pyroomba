@@ -1,3 +1,3 @@
-from roomba import Roomba
+from roomba import *
 from roomba_dynamics import *
 import sensors

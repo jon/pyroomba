@@ -1,3 +1,7 @@
+from math import *
+
+__all__ = ['RoombaDynamics']
+
 class RoombaDynamics(object):
     """Model of the dynamics of the Roomba's motion using direct encoder values.
     This treats the Roomba as a rigid body with its origin at the center of the 
