@@ -22,8 +22,42 @@ def sign(x):
     return 0
 
 class Roomba(object):
-    """A Roomba robot instance."""
+    """A Roomba robot instance.
+    
+    A convenient wrapper around the Roomba 500 Open Interface protocol giving
+    names to all of the Roomba's various commands. Most of the function names
+    map directly to the command names provided in the protocol docs. Where
+    names in the documentation were ambiguous some effort has been made to
+    clarify. Most importantly, the methods in this class are defined in the
+    order they are presented in the documentation. Thus if you find a command
+    you know the Roomba supports missing you can, in the worst case, locate it
+    by its position in the class definition.
+    
+    Taking control of an attached Roomba should look something like the
+    following:
+    
+        from pyroomba import Roomba
+        roomba = Roomba('/dev/tty.roomba')
+        roomba.start()
+        roomba.safe()
+    
+    At this point you have full control over the robot, subject to safety
+    considerations (e.g., the robot will not drive itself off a cliff). Unless
+    you have a good reason to do otherwise, this is the recommended mode of
+    operation.
+    
+    Once you are done with the robot is is recommended (although not strictly
+    necessary) that you call close() to free up the serial port.
+    """
     def __init__(self, port, baud = 115200, serial_port = None):
+        """Instantiate a new Roomba on a given port at a given speed.
+        
+        Arguments are:
+         port: The serial port to which the robot is connected (e.g., 
+            '/dev/tty.roomba' or 'COM1')
+         baud: The baud rate or speed at which to communicate with the robot.
+            This defaults to 115200 which should be correct for 500 series
+            robots. Ealier models communicated at 57600."""
         if not serial_port:
             self.port = Serial(port, baud, timeout = None)
         else:
@@ -38,7 +72,7 @@ class Roomba(object):
         self.port.write(pack(format, *args))
     
     def cmd(self, byte):
-        """Convenience method to send a single byte command to the robot"""
+        """Convenience method to send a single byte command to the robot."""
         self.send('B', byte)
     
     def start(self):
