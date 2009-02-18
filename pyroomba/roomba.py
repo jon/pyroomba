@@ -12,7 +12,11 @@ __all__ = [ 'Roomba' ]
 
 def sign(x):
     """Returns the sign of x, either 1 or -1"""
-    return int(x / abs(x))
+    if x > 0:
+        return 1
+    if x < 0:
+        return -1
+    return 0
 
 class Roomba(object):
     """A Roomba robot instance"""
