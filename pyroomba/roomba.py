@@ -302,13 +302,15 @@ class Roomba(object):
         # Samples always start with a 19 (decimal) followed by a byte indicating the length of the message
         magic = ord(self.port.read())
         while magic <> 19:
+            print "Out of sync"
             # We're out of sync. Read until we get our magic (which might
             # occur mid-packet, so we may not resync, but in that case the
             # checksum should be bad and we'll ditch everything, we hope.)
             magic = ord(self.port.read())
-        length = ord(self.port.read()) # Bytes left to read
+        length = ord(self.port.read()) + 1 # Bytes left to read (plus checksum)
         packet = self.port.read(length)
-        if (sum(unpack('B' * length, packet), length) & 0xff) <> 0:
+        # Roomba OI documentaiton is wrong, Checksum includes 19 magic (-1 for extra length byte)
+        if (sum(unpack('B' * length, packet), length + 18) & 0xff) <> 0:
             # Bad checksum. Ditch everything in the input buffer
             self.port.flushInput()
             raise 'Bad checksum while attempting to read sample' # Should maybe add autoretry option?
@@ -316,7 +318,7 @@ class Roomba(object):
         readings = {}
         while len(packet) <> 0:
             sensor_id = ord(packet[0])
-            id, format, name = sensors.SENSOR_MAP[sensor_id]
+            id, format, name = sensors.SENSOR_ID_MAP[sensor_id]
             size = calcsize(format)
             value = unpack(format, packet[1:1+size])
             readings[name] = value
