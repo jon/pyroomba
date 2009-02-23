@@ -68,7 +68,9 @@ class Roomba(object):
     
     # Action commands (i.e., commands that make the Roomba do things)
     def send(self, format, *args):
-        """Send a command to the robot. Basically a wrapper around self.port.write and struct.pack"""
+        """Send a command to the robot. 
+        
+        This is basically a wrapper around self.port.write and struct.pack"""
         self.port.write(pack(format, *args))
     
     def cmd(self, byte):
@@ -76,24 +78,25 @@ class Roomba(object):
         self.send('B', byte)
     
     def start(self):
-        """Start controlling the robot, wait for a tenth of a second to allow the Roomba to change modes"""
+        """Start controlling the robot; wait for a tenth of a second to allow the Roomba to change modes"""
         self.cmd(128)
         sleep(0.1)  
     
     def safe(self):
-        """Put the robot into safe mode, wait for a tenth of a second to
-        allow the Roomba to change modes. Safe mode allows full control
-        of the robot but leaves cliff-detection sensors and the like
-        enabled. This is intended to prevent most forms of unintentional
-        or intentional robot doom."""
+        """Put the robot into safe mode; wait for a tenth of a second to allow the Roomba to change modes. 
+        
+        Safe mode allows full control of the robot but leaves cliff-detection
+        sensors and the like enabled. This is intended to prevent most forms
+        of unintentional or intentional robot doom."""
         self.cmd(131)
         sleep(0.1)
     
     def full(self):
-        """Take full control of the robot, wait for a tenth of a second to
-        allow the Roomba to change modes. Full control mode disables all of the
-        Roomba's self-preservation features. In full mode the robot will be
-        perfectly happy to burn out its motors or run off a cliff."""
+        """Take full control of the robot; wait for a tenth of a second to allow the Roomba to change modes.
+        
+        Full control mode disables all of the Roomba's self-preservation
+        features. In full mode the robot will be perfectly happy to burn out
+        its motors or run off a cliff."""
         self.cmd(132)
         sleep(0.1)
     
@@ -118,8 +121,9 @@ class Roomba(object):
         pass
         
     def set_clock(self, day, hour, minute):
-        """Sets the Roomba's clock (for scheduling models). Note that hours
-        are represented in 24-hour time, 0-23."""
+        """Sets the Roomba's clock (for scheduling models). 
+        
+        Note that hours are represented in 24-hour time, 0-23."""
         self.send('BBBB', 168, day, hour, minute)
     
     def off(self):
@@ -127,23 +131,26 @@ class Roomba(object):
         self.cmd(133)
 
     def drive(self, speed, radius):
-        """Instructs the Robot to begin driving with a certain speed, 
-        specified in mm/sec, and turning radius, specified in mm. This method
-        is untested, and while it can be safely assured that the command will
-        be sent as specified, the Roomba OI manual's assertion that the speed
-        and radius are specified in mm is likely incorrect. The sensor data
-        return when requesting distance traveled is supposedly in mm, but
-        empirical results suggest that the data is really measured in cm."""
+        """Instructs the Robot to begin driving with a certain speed, specified in mm/sec, and turning radius, specified in mm. 
+        
+        This method is untested, and while it can be safely assured that the
+        command will be sent as specified, the Roomba OI manual's assertion
+        that the speed and radius are specified in mm is likely incorrect. The
+        sensor data return when requesting distance traveled is supposedly in
+        mm, but empirical results suggest that the data is really measured in
+        cm."""
         self.send('>Bhh', 137, speed, radius)
     
     def drive_direct(self, right, left):
-        """Instructs the robot to begin driving with a given speed for each 
-        drive wheel, specfied in mm/sec. The same caveat with respect to units
+        """Instructs the robot to begin driving with a given speed for each drive wheel, specfied in mm/sec.
+        
+        The same caveat with respect to units
         as specified in drive() likely holds for this method as well."""
         self.send('>Bhh', 145, right, left)
     
     def drive_pwm(self, right, left):
-        """Controls the Roomba's motors in PWM (pulse-width modulation) mode. 
+        """Controls the Roomba's motors in PWM (pulse-width modulation) mode.
+        
         This effectively specifies the pulse-width directly to the motor
         controller, with values ranging from -255 to 255. Positive widths
         specify forward motion; negative widths specify backward motion.
@@ -163,8 +170,9 @@ class Roomba(object):
         self.send('>Bhh', 146, right, left)
     
     def motors(self, main = False, side = False, vacuum = False, reverse_main = False, side_clockwise = False):
-        """Turns the Roomba's cleaning motors (i.e., brushes and vacuum) on or
-        off at full speed. A value of True indicates that the motor should be
+        """Turns the Roomba's cleaning motors (i.e., brushes and vacuum) on or off at full speed. 
+        
+        A value of True indicates that the motor should be
         turned on. The value of reverse_main determines the direction of
         the main brush. The value of side_clockwise determines the rotation
         direction of the side brush."""
@@ -177,9 +185,11 @@ class Roomba(object):
         self.send('BB', 138, state)
     
     def motors_pwm(self, main = 0, side = 0, vacuum = 0):
-        """Controls the Roomba's cleaning motors in PWM mode. See the
-        documentation for drive_pwm for a description of PWM. Ranges for the
-        main and side motors are -127 to 127; range for the vacuum is 0 to 127"""
+        """Controls the Roomba's cleaning motors in PWM mode. 
+        
+        See the documentation for drive_pwm for a description of PWM. Ranges
+        for the main and side motors are -127 to 127; range for the vacuum is
+        0 to 127"""
         if abs(main) > 127:
             main = 127 * sign(main)
         if abs(side) > 127:
@@ -191,10 +201,12 @@ class Roomba(object):
         self.send('BbbB', 144, main, side, vacuum)
     
     def leds(self, color = 0, intensity = 0, check_robot = False, dock = False, spot = False, debris = False):
-        """Sets the status of the Roomba's LEDs. Color and intensity must be
-        in the range (0-255). Color ranges from solid green to solid red.
-        Intensity ranges from completely dark to fully illuminated. Other LEDs
-        are specified as either on (True) or off (False)."""
+        """Sets the status of the Roomba's LEDs. 
+        
+        Color and intensity must be in the range (0-255). Color ranges from
+        solid green to solid red. Intensity ranges from completely dark to
+        fully illuminated. Other LEDs are specified as either on (True) or off
+        (False)."""
         bits = 0
         bits |= debris and 1 or 0
         bits |= spot and 2 or 0
@@ -211,18 +223,19 @@ class Roomba(object):
         pass
     
     def display_ascii(self, text):
-        """Displays up to 4 ASCII characters using the 7-segment displays on
-        scheduling Roombas. Only a limited subset of ASCII is supported. See
-        the Roomba OI specification for details, but you can safely use all
-        letters, numbers, and most punctuation."""
+        """Displays up to 4 ASCII characters using the 7-segment displays on scheduling Roombas. 
+        
+        Only a limited subset of ASCII is supported. See the Roomba OI
+        specification for details, but you can safely use all letters,
+        numbers, and most punctuation."""
         text = text[0:4].encode('ascii').upper()
         padding = 4 - len(text)
         self.send('B4s', 164, text + ' ' * padding) # struct.pack() will pad for us, but we want space padding, not NUL padding
     
     def buttons(self, clean = False, spot = False, dock = False, minute = False, hour = False, day = False, schedule = False, clock = False):
-        """Simulates pressing the Roombas buttons for at most 1/6th of a
-        second. Pass True to push the button, False to release it (or not
-        push it)"""
+        """Simulates pressing the Roombas buttons for at most 1/6th of a second. 
+        
+        Pass True to push the button, False to release it (or not push it)"""
         bits = 0
         bits |= clean and 1 or 0
         bits |= spot and 2 or 0
@@ -248,8 +261,7 @@ class Roomba(object):
         self.query_list(sensor)
     
     def query_list(self, *sensors):
-        """Takes a blocking sample of a collection of Roomba's sensors,
-        specified using the constants defined in this module"""
+        """Takes a blocking sample of a collection of Roomba's sensors, specified using the constants defined in this module"""
         packet_list = [ packet for packet, format, name in sensors ]
         formats = [ format for packet, format, name in sensors ]
         names = [ name for packet, format, name in sensors ]
@@ -263,10 +275,10 @@ class Roomba(object):
         return dict(zip(names, values))
     
     def stream_samples(self, *sensors):
-        """Starts streaming sensor data from the Roomba at a rate of one
-        reading every 15ms (the Roomba's internal update rate). After this
-        method has executed you should call poll() at least once every 15ms
-        to access the returned sensor data. To halt the stream call 
+        """Starts streaming sensor data from the Roomba at a rate of one reading every 15ms (the Roomba's internal update rate).
+        
+        After this method has executed you should call poll() at least once
+        every 15ms to access the returned sensor data. To halt the stream call
         stream_pause(). To result the stream with the same packet list call
         stream_resume()."""
         packet_list = [ packet for packet, format, name in sensors ]
@@ -282,8 +294,7 @@ class Roomba(object):
         
     
     def resume_stream(self):
-        """Resumes the sample stream with the previously requested set of
-        sensors"""
+        """Resumes the sample stream with the previously requested set of sensors"""
         self.send('BB', 150, 1)
     
     def poll(self):
