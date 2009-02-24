@@ -75,6 +75,7 @@ class Roomba(object):
          baud: The baud rate or speed at which to communicate with the robot.
             This defaults to 115200 which should be correct for 500 series
             robots. Ealier models communicated at 57600."""
+        self._running = False
         if not serial_port:
             self.port = Serial(port, baud, timeout = None)
         else:
@@ -371,5 +372,25 @@ class Roomba(object):
     # Cleaup and shut down
     def close(self):
         """Closes the serial port used to control the Roomba"""
+        self.stop()
         self.port.close()
-
+    
+    # The simplest of polling run-loops, perfect for SCI robots
+    def run(self, sensors = sensor_list.ALL_SCI, idle_func = None):
+        """Polls the robot at most once every 15ms, updating stored sensor data and optionally calling an idle function"""
+        if self._running:
+            return
+        self._running = True
+        while self._running:
+            start = time()
+            self.latest = self.sensors(sensors)
+            if idle_func:
+                idle_func()
+            stop = time()
+            remaining = 0.015 - (start - stop)
+            if remaining > 0:
+                sleep(remaining)
+    
+    def stop(self):
+        """Signals the built-in polling run-loop to stop if it is running"""
+        self._running = False
