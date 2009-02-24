@@ -7,9 +7,10 @@ from struct import pack
 from struct import unpack
 from struct import calcsize
 from time import sleep
+from time import time
 from math import *
 
-import sensors
+import sensors as sensor_list
 
 __all__ = [ 'Roomba' ]
 
@@ -282,24 +283,40 @@ class Roomba(object):
         """Not yet implemented"""
         pass
     
-    # Data commands (i.e., getting information out of the Roomba)
-    def sensors(self, sensor):
-        """Poll a single sensor"""
-        self.query_list(sensor)
-    
-    def query_list(self, *sensors):
-        """Takes a blocking sample of a collection of Roomba's sensors, specified using the constants defined in this module"""
-        packet_list = [ packet for packet, format, name in sensors ]
+    def _read_sensor_list(self, sensors):
+        """Reads a list of sensor values and returns the associated dictionary"""
+        #packet_list = [ packet for packet, format, name in sensors ]
         formats = [ format for packet, format, name in sensors ]
         names = [ name for packet, format, name in sensors ]
-        count = len(packet_list)
-        format = 'BB' + 'B' * count
-        self.send(format, 149, count, *packet_list)
         
         response_format = '>' + ''.join(formats)
         response = self.port.read(calcsize(response_format))
         values = unpack(response_format, response)
         return dict(zip(names, values))
+    
+    # Data commands (i.e., getting information out of the Roomba)
+    def sensors(self, sensor):
+        """Poll a single sensor"""
+        sensor_id, format, name = sensor
+        self.send('BB', 142, sensor_id)
+        # It's ugly to check for things like this
+        if isinstance(format, str):
+            format = '>' + format
+            return self.port.read(calcsize(format))
+        elif isinstance(format, list):
+            # Some packets return a list of results (particularly on SCI robots)
+            return self._read_sensor_list(format)
+        else:
+            raise 'Unknown sensor format type'
+    
+    def query_list(self, *sensors):
+        """Takes a blocking sample of a collection of Roomba's sensors, specified using the constants defined in this module"""
+        packet_list = [ packet for packet, format, name in sensors ]
+        count = len(packet_list)
+        format = 'BB' + 'B' * count
+        self.send(format, 149, count, *packet_list)
+        
+        return self._read_sensor_list(sensors)
     
     def stream_samples(self, *sensors):
         """Starts streaming sensor data from the Roomba at a rate of one reading every 15ms (the Roomba's internal update rate).
@@ -344,7 +361,7 @@ class Roomba(object):
         readings = {}
         while len(packet) <> 0:
             sensor_id = ord(packet[0])
-            id, format, name = sensors.SENSOR_ID_MAP[sensor_id]
+            id, format, name = sensor_list.SENSOR_ID_MAP[sensor_id]
             size = calcsize(format)
             value = unpack(format, packet[1:1+size])
             readings[name] = value

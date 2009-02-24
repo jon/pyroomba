@@ -31,10 +31,10 @@ BATTERY_CAPACITY = (26, 'H', 'battery_capacity')
 
 WALL_SIGNAL = (27, 'H', 'wall_signal')
 
-CLIFF_LEFT = (28, 'H', 'cliff_left_signal')
-CLIFF_FRONT_LEFT = (29, 'H', 'cliff_front_left_signal')
-CLIFF_FRONT_RIGHT = (30, 'H', 'cliff_front_right_signal')
-CLIFF_RIGHT = (31, 'H', 'cliff_right_signal')
+CLIFF_LEFT_SIGNAL = (28, 'H', 'cliff_left_signal')
+CLIFF_FRONT_LEFT_SIGNAL = (29, 'H', 'cliff_front_left_signal')
+CLIFF_FRONT_RIGHT_SIGNAL = (30, 'H', 'cliff_front_right_signal')
+CLIFF_RIGHT_SIGNAL = (31, 'H', 'cliff_right_signal')
 
 CHARGING_SOURCES_AVAILABLE = (34, 'B', 'charging_sources_available')
 
@@ -67,6 +67,29 @@ SIDE_BRUSH_MOTOR_CURRENT = (57, 'h', 'side_brush_motor_current')
 
 STASIS = (58, 'B', 'stasis')
 
+# Bulk packet definitions
+ALL_SCI = (0, [
+    BUMP_WHEEL_DROPS,
+    WALL,
+    CLIFF_LEFT,
+    CLIFF_FRONT_LEFT,
+    CLIFF_FRONT_RIGHT,
+    CLIFF_RIGHT,
+    VIRTUAL_WALL,
+    WHEEL_OVERCURRENT,
+    DIRT_DETECT,
+    DIRT_DETECT,
+    IR_CHARACTER_OMNI,
+    BUTTONS,
+    DISTANCE,
+    ANGLE,
+    CHARGING_STATE,
+    VOLTAGE,
+    CURRENT,
+    TEMPERATURE,
+    BATTERY_CHARGE,
+    BATTERY_CAPACITY
+], 'all_sci')
 
 SENSORS = [
    BUMP_WHEEL_DROPS,
