@@ -302,7 +302,6 @@ class Roomba(object):
         # Samples always start with a 19 (decimal) followed by a byte indicating the length of the message
         magic = ord(self.port.read())
         while magic <> 19:
-            print "Out of sync"
             # We're out of sync. Read until we get our magic (which might
             # occur mid-packet, so we may not resync, but in that case the
             # checksum should be bad and we'll ditch everything, we hope.)
