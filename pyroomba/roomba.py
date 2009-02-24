@@ -49,6 +49,22 @@ class Roomba(object):
     Once you are done with the robot is is recommended (although not strictly
     necessary) that you call close() to free up the serial port.
     """
+    
+    BAUD_RATES = {
+        300: 0,
+        600: 1,
+        1200: 2,
+        2400: 3,
+        4800: 4,
+        9600: 5,
+        14400: 6,
+        19200: 7,
+        28800: 8,
+        38400: 9,
+        57600: 10,
+        115200: 11
+    }
+    
     def __init__(self, port, baud = 115200, serial_port = None):
         """Instantiate a new Roomba on a given port at a given speed.
         
@@ -76,11 +92,22 @@ class Roomba(object):
     def cmd(self, byte):
         """Convenience method to send a single byte command to the robot."""
         self.send('B', byte)
+        
+    def baud(self, baud_rate):
+        """Changes the baudrate at which the Roomba communicates"""
+        if not baud_rate in self.BAUD_RATES:
+            raise 'Invalid baud rate specified'
+        self.send('BB', 128, self.BAUD_RATES[baud_rate])
+        sleep(0.1)
+        self.port.setBaudrate(baud_rate)
+        sleep(0.1)
     
     def start(self):
         """Start controlling the robot; wait for a tenth of a second to allow the Roomba to change modes"""
         self.cmd(128)
         sleep(0.1)  
+        self.cmd(130) # Necessary for SCI robots (no harm on OI?)
+        sleep(0.1)
     
     def safe(self):
         """Put the robot into safe mode; wait for a tenth of a second to allow the Roomba to change modes. 
