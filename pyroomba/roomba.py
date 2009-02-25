@@ -426,7 +426,8 @@ class RoombaClassic(Roomba):
         average = int((abs(right) + abs(left)) / 2)
         slope = (right - left) / (2 * self._radius)
         y_intercept = right - slope*self._radius
-        radius = -y_intercept / slope
+        radius = y_intercept / slope
+        self.drive(sign(left + right) * average, radius)
     
     def drive_pwm(self, right, left):
         """Converts PWM values to direct motor drive values, simulating the desired duty cycle"""
