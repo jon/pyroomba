@@ -53,6 +53,7 @@ def handle_command(client, command):
         if hasattr(roomba, name):
             method = getattr(roomba, name)
             intargs = [ int(a) for a in args ] # Try all integers, most args are!
+            method(*intargs)
 
 buf = ''
 def receive_command(client):
