@@ -37,7 +37,7 @@ def handle_command(client, command):
     args = parts[1:]
     if name == 'sensor':
         if args[0] in roomba.latest:
-            response = "%s:%s\n" % (args[0], roomba.latest[args[0]])
+            response = "%s: %s\n" % (args[0], roomba.latest[args[0]])
     elif name == 'monitor':
         for sensor in args:
             monitors.append(sensor)
@@ -53,7 +53,6 @@ def handle_command(client, command):
         if hasattr(roomba, name):
             method = getattr(roomba, name)
             intargs = [ int(a) for a in args ] # Try all integers, most args are!
-    return
 
 buf = ''
 def receive_command(client):
@@ -85,7 +84,7 @@ while not quit:
         receive_command(client)
         
         for sensor in monitors:
-            response = "%s:%s\n" % (sensor, roomba.latest[sensor])
+            response = "%s: %s\n" % (sensor, roomba.latest[sensor])
             client.send(response)
     
     try:
