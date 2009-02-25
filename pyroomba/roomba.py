@@ -12,7 +12,7 @@ from math import *
 
 import sensors as sensor_list
 
-__all__ = [ 'Roomba' ]
+__all__ = [ 'Roomba', 'RoombaClassic' ]
 
 def sign(x):
     """Returns the sign of x, either 1 or -1"""
@@ -168,7 +168,10 @@ class Roomba(object):
         sensor data return when requesting distance traveled is supposedly in
         mm, but empirical results suggest that the data is really measured in
         cm."""
-        self.send('>Bhh', 137, speed, radius)
+        if radius <> 0x8000:
+            self.send('>Bhh', 137, speed, radius)
+        else:
+            self.send('>BhH', 137, speed, radius)
     
     def drive_direct(self, right, left):
         """Instructs the robot to begin driving with a given speed for each drive wheel, specfied in mm/sec.
@@ -394,3 +397,39 @@ class Roomba(object):
     def stop(self):
         """Signals the built-in polling run-loop to stop if it is running"""
         self._running = False
+
+class RoombaClassic(Roomba):
+    """Classic version of the Roomba robot (i.e., Red, Discovery, Sage).
+    
+    This class provides compatibility functions mapping from newer control
+    methods (i.e., drive_pwm(), drive_direct()) onto the traditional drive()
+    method. This allows code written expecting a Roomba supporting these
+    methods to be used with older models.
+    """
+    def __init__(self, port, baud = 57600, serial_port = None):
+        super(RoombaClassic, self).__init__(port, baud, serial_port)
+        self._radius = 258.0 / 2
+    
+    def drive_direct(self, right, left):
+        """Converts direct motor drive commands into radius/speed commands"""
+        if left == right:
+            # Special case to handle equal
+            self.drive(left, 0x8000)
+            return
+        elif abs(left) == abs(right):
+            # The only way this is true if the above wasn't is if the wheels are equal and opposite
+            if left < right:
+                self.drive(right, -1)
+            else:
+                self.drive(left, 1)
+            return
+        average = int((abs(right) + abs(left)) / 2)
+        slope = (right - left) / (2 * self._radius)
+        y_intercept = right - slope*self._radius
+        radius = -y_intercept / slope
+    
+    def drive_pwm(self, right, left):
+        """Converts PWM values to direct motor drive values, simulating the desired duty cycle"""
+        self.drive_direct(right / 255 * 500, left / 255 * 500)
+    
+
