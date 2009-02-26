@@ -63,7 +63,7 @@ def receive_command(client):
         buf += client.recv(1024)
     except error, e:
         code, message = e
-        if code == 35:
+        if code in (11, 35):
             return # No data waiting, that's fine
         raise e # Some other error. Crash!
     commands = buf.split("\n")
