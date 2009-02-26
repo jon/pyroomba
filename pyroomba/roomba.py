@@ -168,10 +168,15 @@ class Roomba(object):
         sensor data return when requesting distance traveled is supposedly in
         mm, but empirical results suggest that the data is really measured in
         cm."""
+        if radius == 0x8000:
+            self.send('>BhH', 137, speed, radius)
+            return # Special case for straight ahead
+        if abs(speed) > 500:
+            speed = 500 * sign(speed)
+        if abs(radius) > 2000:
+            radius = 2000 * sign(radius)
         if radius <> 0x8000:
             self.send('>Bhh', 137, speed, radius)
-        else:
-            self.send('>BhH', 137, speed, radius)
     
     def drive_direct(self, right, left):
         """Instructs the robot to begin driving with a given speed for each drive wheel, specfied in mm/sec.
