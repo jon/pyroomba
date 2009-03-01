@@ -66,7 +66,7 @@ class Roomba(object):
         115200: 11
     }
     
-    def __init__(self, port, baud = 115200, serial_port = None):
+    def __init__(self, port, baud = 115200, timeout = 0.030, serial_port = None):
         """Instantiate a new Roomba on a given port at a given speed.
         
         Arguments are:
@@ -77,7 +77,7 @@ class Roomba(object):
             robots. Ealier models communicated at 57600."""
         self._running = False
         if not serial_port:
-            self.port = Serial(port, baud, timeout = None)
+            self.port = Serial(port, baud, timeout) # Anything we ask the robot to do it should reply within 0.015 seconds. We give it a buffer of twice that.
         else:
             self.port = serial_port # Mostly useful for testing, but also if
             # you have a pyserial compliant class for communicating over some
@@ -307,7 +307,7 @@ class Roomba(object):
     
     # Data commands (i.e., getting information out of the Roomba)
     def sensors(self, sensor):
-        """Poll a single sensor"""
+        """Request a single sensor packet"""
         sensor_id, format, name = sensor
         self.send('BB', 142, sensor_id)
         # It's ugly to check for things like this
