@@ -284,13 +284,15 @@ class Roomba(object):
         bits |= clock and 0x80 or 0
         self.send('BB', 165, bits)
     
-    def define_song(self):
-        """Not yet implemented"""
-        pass
+    def define_song(self, songID, notes, durations):
+        """Defines a song in the Roomba's repertoire"""
+        packingScheme = 'B' * (2 * length + 3)
+        composition = list(reduce(lambda x, y: x + y, zip(notes, durations)))
+        self.send(packingScheme, 140, songID, len(notes), *composition)
     
-    def play_song(self):
-        """Not yet implemented"""
-        pass
+    def play_song(self, number):
+        """Plays one of the already stored Roomba songs"""
+        self.send('BB', 141, number)
     
     def _read_sensor_list(self, sensors):
         """Reads a list of sensor values and returns the associated dictionary"""
