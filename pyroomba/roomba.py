@@ -286,7 +286,7 @@ class Roomba(object):
     
     def define_song(self, songID, notes, durations):
         """Defines a song in the Roomba's repertoire"""
-        packingScheme = 'B' * (2 * length + 3)
+        packingScheme = 'B' * (2 * len(notes) + 3)
         composition = list(reduce(lambda x, y: x + y, zip(notes, durations)))
         self.send(packingScheme, 140, songID, len(notes), *composition)
     
