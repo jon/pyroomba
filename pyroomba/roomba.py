@@ -77,7 +77,7 @@ class Roomba(object):
             robots. Ealier models communicated at 57600."""
         self._running = False
         if not serial_port:
-            self.port = Serial(port, baud, timeout) # Anything we ask the robot to do it should reply within 0.015 seconds. We give it a buffer of twice that.
+            self.port = Serial(port, baudrate = baud, timeout = timeout) # Anything we ask the robot to do it should reply within 0.015 seconds. We give it a buffer of twice that.
         else:
             self.port = serial_port # Mostly useful for testing, but also if
             # you have a pyserial compliant class for communicating over some
