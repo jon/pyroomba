@@ -342,7 +342,7 @@ class Roomba(object):
     def pause_stream(self):
         """Pauses the sample stream (if any) coming from the Roomba"""
         self.send('BB', 150, 0)
-        sleep(0.03)
+        sleep(0.1)
         self.port.flushInput()
         
     
@@ -365,7 +365,7 @@ class Roomba(object):
         if (sum(unpack('B' * length, packet), length + 18) & 0xff) <> 0:
             # Bad checksum. Ditch everything in the input buffer
             self.port.flushInput()
-            raise 'Bad checksum while attempting to read sample' # Should maybe add autoretry option?
+            raise (-1, 'Bad checksum while attempting to read sample') # Should maybe add autoretry option?
         packet = packet[0:-1] # Strip off checksum
         readings = {}
         while len(packet) <> 0:
@@ -373,7 +373,7 @@ class Roomba(object):
             id, format, name = sensor_list.SENSOR_ID_MAP[sensor_id]
             size = calcsize(format)
             value = unpack(format, packet[1:1+size])
-            readings[name] = value
+            readings[name] = value[0]
             packet = packet[1+size:]
         return readings
         
